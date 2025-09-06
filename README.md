@@ -5,6 +5,7 @@ This template project is a Java-based backend service based on [Jooby](https://g
 *   Java 21
 *   Jooby as one of the fastest, pure Java web frameworks available
 *   Combination of Flyway, jOOQ and codegen Gradle plugin to reduce complexity and allow direct, typesafe operations with database using SQL.
+*   Spotless to ensure consistent code format across repository files.
 *   OpenAPI specification generation.
 *   Barebone metrics support, ready to be plugged in to the metrics backend of your choice.
 *   Baseline separation of concerns between controllers in functional style.
