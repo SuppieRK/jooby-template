@@ -1,0 +1,167 @@
+import nu.studer.gradle.jooq.JooqEdition
+
+import java.nio.charset.StandardCharsets
+
+buildscript {
+	dependencies {
+		// Fixes NoClassDefFoundError: javax/xml/bind/annotation/XmlElement for openAPI plugin
+		classpath 'javax.xml.bind:jaxb-api:2.3.1'
+	}
+}
+
+plugins {
+	id 'idea'
+	id 'java'
+	id 'application'
+
+	id 'io.jooby.openAPI' version "${joobyVersion}"
+	id 'io.jooby.run' version "${joobyVersion}"
+
+	// https://plugins.gradle.org/plugin/com.google.osdetector
+	id 'com.google.osdetector' version '1.7.3'
+	// https://plugins.gradle.org/plugin/com.gradleup.shadow
+	id 'com.gradleup.shadow' version '9.1.0'
+
+	id 'jacoco'
+	// https://plugins.gradle.org/plugin/io.github.suppierk.jooq-java-class-generator
+	id 'io.github.suppierk.jooq-java-class-generator' version '2.0.2'
+
+	// https://plugins.gradle.org/plugin/com.diffplug.spotless
+	id 'com.diffplug.spotless' version '7.2.1'
+	// https://plugins.gradle.org/plugin/com.google.cloud.tools.jib
+	id 'com.google.cloud.tools.jib' version '3.4.5'
+}
+
+group = 'jooby.template'
+version = '1.0-SNAPSHOT'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// https://mvnrepository.com/artifact/io.jooby/jooby-bom
+	implementation enforcedPlatform("io.jooby:jooby-bom:${joobyVersion}")
+	implementation 'io.jooby:jooby-netty'
+	implementation 'io.jooby:jooby-hikari'
+	implementation 'io.jooby:jooby-flyway'
+	implementation 'io.jooby:jooby-jackson'
+	implementation 'io.jooby:jooby-logback'
+	implementation 'io.jooby:jooby-swagger-ui'
+	implementation 'io.jooby:jooby-metrics'
+
+	// https://mvnrepository.com/artifact/org.postgresql/postgresql
+	implementation 'org.postgresql:postgresql:42.7.7'
+	jooqGenerator 'org.postgresql:postgresql:42.7.7'
+	// https://mvnrepository.com/artifact/org.flywaydb/flyway-database-postgresql
+	implementation 'org.flywaydb:flyway-database-postgresql:11.12.0'
+	// https://mvnrepository.com/artifact/org.jooq/jooq
+	implementation 'org.jooq:jooq:3.20.6'
+	// https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
+	implementation 'io.swagger.core.v3:swagger-annotations:2.2.36'
+
+	testImplementation 'io.jooby:jooby-test'
+
+	// https://mvnrepository.com/artifact/org.junit/junit-bom
+	testImplementation enforcedPlatform('org.junit:junit-bom:5.13.4')
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp-jvm
+	implementation 'com.squareup.okhttp3:okhttp-jvm:5.1.0'
+	// https://mvnrepository.com/artifact/org.assertj/assertj-core
+	testImplementation 'org.assertj:assertj-core:3.27.4'
+	// https://mvnrepository.com/artifact/org.mockito/mockito-core
+	testImplementation 'org.mockito:mockito-core:5.19.0'
+	// https://mvnrepository.com/artifact/org.testcontainers/postgresql
+	testImplementation 'org.testcontainers:postgresql:1.21.3'
+	// https://mvnrepository.com/artifact/nl.jqno.equalsverifier/equalsverifier-nodep
+	testImplementation 'nl.jqno.equalsverifier:equalsverifier-nodep:4.1'
+}
+
+application {
+	mainClass = 'jooby.template.Main'
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_21.toString())
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
+
+tasks.withType(Copy).configureEach {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = StandardCharsets.UTF_8.name()
+	options.compilerArgs += ['-parameters']
+	options.debug = true
+}
+
+jar {
+	dependsOn openAPI
+}
+
+shadowJar {
+	mergeServiceFiles()
+}
+
+joobyRun {
+	dependsOn openAPI
+	mainClass = application.mainClass
+	restartExtensions = ["conf", "properties", "class"]
+	compileExtensions = ["java"]
+	port = 8080
+}
+
+spotless {
+	java {
+		target '**/src/*/java/**/*.java'
+
+		// Aligns with Intellij IDEA default settings
+		toggleOffOn('@formatter:off', '@formatter:on')
+
+		googleJavaFormat()
+	}
+
+	groovyGradle {
+		target '**/*.gradle'
+
+		greclipse()
+	}
+}
+
+flyway {
+	driver = 'org.postgresql.Driver'
+}
+
+jooq {
+	version = '3.20.6'
+	edition = JooqEdition.OSS
+
+	configurations {
+		main {
+			generationTool {
+				generator {
+					database {
+						name = 'org.jooq.meta.postgres.PostgresDatabase'
+					}
+					generate {
+						fluentSetters = true
+					}
+					target {
+						packageName = 'jooby.template.db'
+					}
+				}
+			}
+		}
+	}
+}

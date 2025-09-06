@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="15 seconds" debug="false">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!--
+              %d{yyyy-MM-dd HH:mm:ss.SSS} - Full timestamp
+              %magenta([%15.15t])         - Thread name, magenta, padded/truncated to 15 chars
+              %highlight(%-5level)        - Log level, colored based on severity
+              %cyan(%-36.36logger{36})    - Logger name, cyan, padded/truncated to 36 chars
+              : %msg%n%throwable          - The log message, newline, and stack trace if any
+            -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %magenta([%15.15t]) %highlight(%-5level) %cyan(%-36.36logger{36}) : %msg%n%throwable</pattern>
+        </encoder>
+    </appender>
+
+    <!-- SQL execution logging is logged to the LoggerListener logger at DEBUG level -->
+    <logger name="org.jooq.tools.LoggerListener" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- Other jOOQ related debug log output -->
+    <logger name="org.jooq.Constants" level="OFF" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- Other jOOQ related debug log output -->
+    <logger name="org.jooq" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- Package related -->
+    <logger name="jooby.template" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
