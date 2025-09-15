@@ -56,7 +56,7 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.flywaydb/flyway-database-postgresql
 	implementation 'org.flywaydb:flyway-database-postgresql:11.12.0'
 	// https://mvnrepository.com/artifact/org.jooq/jooq
-	implementation 'org.jooq:jooq:3.20.6'
+	implementation 'org.jooq:jooq:3.20.7'
 	// https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
 	implementation 'io.swagger.core.v3:swagger-annotations:2.2.36'
 
