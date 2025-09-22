@@ -58,7 +58,7 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.jooq/jooq
 	implementation 'org.jooq:jooq:3.20.6'
 	// https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
-	implementation 'io.swagger.core.v3:swagger-annotations:2.2.36'
+	implementation 'io.swagger.core.v3:swagger-annotations:2.2.37'
 
 	testImplementation 'io.jooby:jooby-test'
 
